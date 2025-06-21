@@ -11,7 +11,7 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
   // If no user is logged in, only show the Auth component
@@ -21,9 +21,9 @@ const Layout = ({ children }: LayoutProps) => {
 
   // If user is logged in, show the Navbar and the main app content
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-4 max-w-4xl">
         {children}
       </main>
     </div>
