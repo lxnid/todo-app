@@ -1,10 +1,12 @@
-function App() {
+import TodoList from './components/TodoList';
+import Layout from './components/Layout';
 
+function App() {
   return (
-    <>
-      <h1>Hello, world!</h1>
-    </>
-  )
+    <Layout>
+      <TodoList />
+    </Layout>
+  );
 }
 
 export default App
