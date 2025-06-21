@@ -11,7 +11,12 @@ import {
 	getDoc,
 } from "firebase/firestore";
 import { useAuth } from "../firebase";
-import { MdCheckBox, MdCheckBoxOutlineBlank, MdDelete, MdOutlineAdd } from "react-icons/md";
+import {
+	MdCheckBox,
+	MdCheckBoxOutlineBlank,
+	MdDelete,
+	MdOutlineAdd,
+} from "react-icons/md";
 
 type Task = {
 	id: string;
@@ -226,49 +231,91 @@ const TodoList = () => {
 				</form>
 			</div>
 
-			<ul className="space-y-2">
-				{tasks.map((task) => (
-					<li
-						key={task.id}
-						className="p-5 border-b hover:border border-gray-300 cursor-pointer rounded-2xl bg-gray-100 hover:bg-sky-100 hover:scale-[102%] ease-in-out duration-400 shadow-sm flex justify-between items-center task-item transition-all"
-					>
-						<button
-							onClick={() =>
-								updateTaskStatus(task.id, task.status)
-							}
-							className="text-gray-500 hover:text-sky-500 focus:outline-none btn-press transition-all text-xl px-2"
+			<ul className={`space-y-2 ${tasks.filter((task) => task.status).length > 0 ? 'h-[45vh]' : 'h-[70vh]'} overflow-auto w-full px-3`}>
+				{/* filter incompleted tasks */}
+				{tasks
+					.filter((task) => !task.status)
+					.map((task) => (
+						<li
+							key={task.id}
+							className="p-5 border-b hover:border border-gray-300 cursor-pointer rounded-2xl bg-gray-100 hover:bg-sky-100 hover:scale-[102%] ease-in-out duration-400 shadow-sm flex justify-between items-center task-item transition-all"
 						>
-							{task.status ? (
-								<MdCheckBox />
-							) : (
-								<MdCheckBoxOutlineBlank />
-							)}
-						</button>
-						<div className="flex items-center flex-grow mr-2">
-							<p
-								className={`${
-									task.status
-										? "line-through text-gray-400"
-										: "text-gray-700"
-								}`}
+							<button
+								onClick={() =>
+									updateTaskStatus(task.id, task.status)
+								}
+								className="text-gray-500 hover:text-sky-500 focus:outline-none btn-press transition-all text-xl px-2"
 							>
-								{task.description}
-							</p>
-						</div>
-						<button
-							onClick={() => deleteTask(task.id)}
-							className="text-gray-500 hover:text-red-500 focus:outline-none btn-press transition-all text-xl"
-						>
-							<MdDelete />
-						</button>
-					</li>
-				))}
+								{task.status ? (
+									<MdCheckBox />
+								) : (
+									<MdCheckBoxOutlineBlank />
+								)}
+							</button>
+							<div className="flex items-center flex-grow mr-2">
+								<p
+									className={`$${"{"}task.status ? "line-through text-gray-400" : "text-gray-700"}`}
+								>
+									{task.description}
+								</p>
+							</div>
+							<button
+								onClick={() => deleteTask(task.id)}
+								className="text-gray-500 hover:text-red-500 focus:outline-none btn-press transition-all text-xl"
+							>
+								<MdDelete />
+							</button>
+						</li>
+					))}
 			</ul>
 
-			{tasks.length === 0 && (
+			{tasks.filter((task) => !task.status).length === 0 && (
 				<p className="text-center text-gray-500 mt-4">
 					No tasks yet. Add one above!
 				</p>
+			)}
+			{/* completed tasks */}
+			{tasks.filter((task) => task.status).length > 0 && (
+				<div className="absolute bottom-20 flex items-center justify-center w-full max-w-4xl">
+					<div className="w-full mx-auto pr-6">
+						<h2 className="text-lg font-semibold text-gray-600 mb-2">
+							Completed
+						</h2>
+						<ul className="space-y-2 h-[20vh] overflow-auto px-4">
+							{tasks
+								.filter((task) => task.status)
+								.map((task) => (
+									<li
+										key={task.id}
+										className="p-5 border-b hover:border border-gray-300 cursor-pointer rounded-2xl bg-gray-100 hover:bg-sky-100 hover:scale-[102%] ease-in-out duration-400 shadow-sm flex justify-between items-center task-item transition-all opacity-60"
+									>
+										<button
+											onClick={() =>
+												updateTaskStatus(
+													task.id,
+													task.status
+												)
+											}
+											className="text-gray-400 hover:text-sky-500 focus:outline-none btn-press transition-all text-xl px-2"
+										>
+											<MdCheckBox />
+										</button>
+										<div className="flex items-center flex-grow mr-2">
+											<p className="line-through text-gray-400">
+												{task.description}
+											</p>
+										</div>
+										<button
+											onClick={() => deleteTask(task.id)}
+											className="text-gray-400 hover:text-red-500 focus:outline-none btn-press transition-all text-xl"
+										>
+											<MdDelete />
+										</button>
+									</li>
+								))}
+						</ul>
+					</div>
+				</div>
 			)}
 		</div>
 	);
