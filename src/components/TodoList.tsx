@@ -16,6 +16,8 @@ import {
 	MdCheckBoxOutlineBlank,
 	MdDelete,
 	MdOutlineAdd,
+	MdKeyboardArrowDown,
+	MdKeyboardArrowUp,
 } from "react-icons/md";
 
 type Task = {
@@ -30,6 +32,7 @@ const TodoList = () => {
 	const [newTaskDescription, setNewTaskDescription] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [isAddingTask, setIsAddingTask] = useState(false);
+	const [showCompleted, setShowCompleted] = useState(true);
 
 	// Ensure user document exists
 	useEffect(() => {
@@ -231,7 +234,7 @@ const TodoList = () => {
 				</form>
 			</div>
 
-			<ul className={`space-y-2 ${tasks.filter((task) => task.status).length > 0 ? 'h-[45vh]' : 'h-[70vh]'} overflow-auto w-full px-3`}>
+			<ul className="space-y-2 max-h-[55vh] overflow-auto w-full px-3">
 				{/* filter incompleted tasks */}
 				{tasks
 					.filter((task) => !task.status)
@@ -274,14 +277,26 @@ const TodoList = () => {
 					No tasks yet. Add one above!
 				</p>
 			)}
+
 			{/* completed tasks */}
 			{tasks.filter((task) => task.status).length > 0 && (
-				<div className="absolute bottom-20 flex items-center justify-center w-full max-w-4xl">
-					<div className="w-full mx-auto pr-6">
-						<h2 className="text-lg font-semibold text-gray-600 mb-2">
-							Completed
-						</h2>
-						<ul className="space-y-2 h-[20vh] overflow-auto px-4">
+				<div className="mt-8 w-full pt-4">
+					<button
+						onClick={() => setShowCompleted(!showCompleted)}
+						className="w-full flex items-center cursor-pointer text-xl justify-between px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+					>
+						<div className="flex items-center">
+							<h2 className="text-lg font-semibold text-gray-600">
+								Completed Tasks
+							</h2>
+							<span className="ml-2 text-sm text-gray-500">
+								({tasks.filter((task) => task.status).length})
+							</span>
+						</div>
+						{showCompleted ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+					</button>
+					{showCompleted && (
+						<ul className="space-y-2 my-1 max-h-[20vh] overflow-auto px-4 transition-all">
 							{tasks
 								.filter((task) => task.status)
 								.map((task) => (
@@ -314,7 +329,7 @@ const TodoList = () => {
 									</li>
 								))}
 						</ul>
-					</div>
+					)}
 				</div>
 			)}
 		</div>
