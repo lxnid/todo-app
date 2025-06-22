@@ -414,7 +414,12 @@ const TodoList = () => {
 			</div>
 
 			<div className="flex justify-between items-center mb-4">
-				<h2 className="text-lg font-semibold text-gray-700">Tasks</h2>
+				<h2 className="text-lg font-semibold text-gray-700">
+					Tasks
+					<span className="ml-2 text-sm text-gray-500">
+						({tasks.filter((task) => !task.status).length})
+					</span>
+				</h2>
 				<div className="flex items-center">
 					<label
 						htmlFor="sortOption"
@@ -438,7 +443,7 @@ const TodoList = () => {
 				</div>
 			</div>
 
-			<ul className="space-y-2">
+			<ul className="space-y-2 max-h-[45vh] overflow-auto px-2">
 				{sortTasks(tasks)
 					.filter((task) => !task.status)
 					.map((task) => (
@@ -525,7 +530,7 @@ const TodoList = () => {
 						)}
 					</button>
 					{showCompleted && (
-						<ul className="space-y-2 my-1 max-h-[20vh] overflow-auto px-2 transition-all">
+						<ul className="space-y-2 my-1 max-h-[25vh] overflow-auto px-2 transition-all">
 							{sortTasks(tasks)
 								.filter((task) => task.status)
 								.map((task) => (
