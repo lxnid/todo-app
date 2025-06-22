@@ -16,6 +16,8 @@ import {
 	MdCheckBoxOutlineBlank,
 	MdDelete,
 	MdOutlineAdd,
+	MdCalendarToday,
+	MdClose,
 } from "react-icons/md";
 
 type Task = {
@@ -33,9 +35,11 @@ const TodoList = () => {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [newTaskDescription, setNewTaskDescription] = useState("");
 	const [newTaskDueDate, setNewTaskDueDate] = useState<string>("");
+	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isAddingTask, setIsAddingTask] = useState(false);
 	const [sortOption, setSortOption] = useState<SortOption>("createdDesc");
+	const [includeTime, setIncludeTime] = useState(false);
 
 	// Ensure user document exists
 	useEffect(() => {
@@ -128,11 +132,22 @@ const TodoList = () => {
 			// Reference to the tasks subcollection for this user
 			const tasksRef = collection(db, "users", user.uid, "tasks");
 
+			// Create a due date with or without time component
+			let dueDate = null;
+			if (newTaskDueDate) {
+				if (includeTime) {
+					dueDate = new Date(newTaskDueDate);
+				} else {
+					// Create date without time component (set to start of day)
+					dueDate = new Date(newTaskDueDate.split('T')[0] + 'T00:00:00');
+				}
+			}
+
 			const newTask = {
 				description: newTaskDescription,
 				status: false,
 				createdAt: new Date(),
-				dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
+				dueDate: dueDate,
 			};
 
 			console.log("New task data:", newTask);
@@ -143,6 +158,7 @@ const TodoList = () => {
 			// Clear form
 			setNewTaskDescription("");
 			setNewTaskDueDate("");
+			setShowDatePicker(false);
 			setError(null);
 		} catch (error: any) {
 			console.error("Error adding task:", error);
@@ -247,15 +263,32 @@ const TodoList = () => {
 	};
 
 	// Format date for display
-	const formatDate = (date: Date | null): string => {
-		if (!date) return "No date";
-		return date.toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
+	const formatDate = (date: Date | null, includeTime: boolean = true): string => {
+		if (!date) return 'No date';
+		
+		const options: Intl.DateTimeFormatOptions = { 
+			year: 'numeric', 
+			month: 'short', 
+			day: 'numeric'
+		};
+		
+		if (includeTime) {
+			options.hour = '2-digit';
+			options.minute = '2-digit';
+		}
+		
+		return date.toLocaleDateString('en-US', options);
+	};
+	
+	// Toggle date picker visibility
+	const toggleDatePicker = () => {
+		setShowDatePicker(!showDatePicker);
+	};
+	
+	// Clear due date
+	const clearDueDate = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		setNewTaskDueDate("");
 	};
 
 	return (
@@ -268,7 +301,7 @@ const TodoList = () => {
 			)}
 
 			<div className="mb-10">
-				<form onSubmit={addTask} className="flex flex-col gap-2">
+				<form onSubmit={addTask} className="flex gap-2">
 					<div className="relative flex-grow">
 						<input
 							type="text"
@@ -283,16 +316,59 @@ const TodoList = () => {
 						/>
 					</div>
 					<div className="flex items-center gap-2">
-						<div className="relative flex-grow">
-							<input
-								type="datetime-local"
-								value={newTaskDueDate}
-								onChange={(e) =>
-									setNewTaskDueDate(e.target.value)
-								}
-								placeholder="Set due date (optional)"
-								className="w-full px-4 py-2 border border-gray-400 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500 opacity-50 hover:opacity-100 transition-all ease-out duration-300"
-							/>
+						<div className="relative">
+							<button
+								type="button"
+								onClick={toggleDatePicker}
+								className="flex items-center justify-center p-2 bg-gray-200 hover:bg-gray-300 hover:scale-110 rounded-full transition-all ease-out duration-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500"
+							>
+								<MdCalendarToday className="text-gray-700" />
+								{newTaskDueDate && (
+									<span className="ml-2 text-xs text-gray-700">
+										{newTaskDueDate.split('T')[0]}
+									</span>
+								)}
+							</button>
+							
+							{newTaskDueDate && (
+								<button
+									type="button"
+									onClick={clearDueDate}
+									className="absolute -right-2 -top-2 bg-red-100 hover:bg-red-200 rounded-full p-1 text-xs"
+								>
+									<MdClose className="text-red-500" />
+								</button>
+							)}
+							
+							{showDatePicker && (
+								<div className="absolute z-10 mt-1 p-3 bg-white border border-gray-300 rounded-lg shadow-lg">
+									<div className="mb-2">
+										<input
+											type={includeTime ? "datetime-local" : "date"}
+											value={newTaskDueDate}
+											onChange={(e) => setNewTaskDueDate(e.target.value)}
+											className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
+										/>
+									</div>
+									<div className="flex items-center mb-2">
+										<input
+											id="includeTime"
+											type="checkbox"
+											checked={includeTime}
+											onChange={() => setIncludeTime(!includeTime)}
+											className="mr-2"
+										/>
+										<label htmlFor="includeTime" className="text-xs text-gray-600">Add time</label>
+									</div>
+									<button
+										type="button"
+										onClick={toggleDatePicker}
+										className="w-full py-1 text-xs bg-sky-500 text-white rounded hover:bg-sky-600 transition-colors"
+									>
+										Apply
+									</button>
+								</div>
+							)}
 						</div>
 						<button
 							type="submit"
@@ -372,7 +448,7 @@ const TodoList = () => {
 											: "text-sky-600"
 									}`}
 								>
-									Due: {formatDate(task.dueDate)}
+									Due: {formatDate(task.dueDate, false)}
 								</p>
 							)}
 							{task.createdAt && (
