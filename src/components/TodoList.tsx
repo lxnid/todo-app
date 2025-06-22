@@ -20,6 +20,8 @@ import {
 	MdKeyboardArrowUp,
 	MdCalendarToday,
 	MdClose,
+	MdEdit,
+	MdSave,
 } from "react-icons/md";
 
 type Task = {
@@ -43,6 +45,8 @@ const TodoList = () => {
 	const [showCompleted, setShowCompleted] = useState(true);
 	const [sortOption, setSortOption] = useState<SortOption>("createdDesc");
 	const [includeTime, setIncludeTime] = useState(false);
+	const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+	const [editingTaskDescription, setEditingTaskDescription] = useState("");
 
 	// Ensure user document exists
 	useEffect(() => {
@@ -171,6 +175,40 @@ const TodoList = () => {
 		} finally {
 			setIsAddingTask(false);
 		}
+	};
+
+	// Update task description
+	const updateTaskDescription = async (id: string) => {
+		if (!user || !editingTaskDescription.trim()) return;
+
+		try {
+			// Reference to the specific task document
+			const taskRef = doc(db, "users", user.uid, "tasks", id);
+
+			// Update in Firestore
+			await updateDoc(taskRef, {
+				description: editingTaskDescription.trim(),
+			});
+
+			// Clear editing state
+			setEditingTaskId(null);
+			setEditingTaskDescription("");
+		} catch (error: any) {
+			console.error("Error updating task description:", error);
+			setError(`Error updating task: ${error.message}.`);
+		}
+	};
+
+	// Start editing a task
+	const startEditing = (task: Task) => {
+		setEditingTaskId(task.id);
+		setEditingTaskDescription(task.description);
+	};
+
+	// Cancel editing
+	const cancelEditing = () => {
+		setEditingTaskId(null);
+		setEditingTaskDescription("");
 	};
 
 	// Update task status
@@ -464,15 +502,39 @@ const TodoList = () => {
 								)}
 							</button>
 							<div className="flex flex-col flex-grow mr-2">
-								<p
-									className={`${
-										task.status
-											? "line-through text-gray-400"
-											: "text-gray-700"
-									}`}
-								>
-									{task.description}
-								</p>
+								{editingTaskId === task.id ? (
+									<div className="flex gap-2">
+										<input
+											type="text"
+											value={editingTaskDescription}
+											onChange={(e) => setEditingTaskDescription(e.target.value)}
+											className="flex-grow px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
+											autoFocus
+										/>
+										<button
+											onClick={() => updateTaskDescription(task.id)}
+											className="text-sky-500 hover:text-sky-600 focus:outline-none btn-press transition-all text-xl"
+										>
+											<MdSave />
+										</button>
+										<button
+											onClick={cancelEditing}
+											className="text-gray-500 hover:text-gray-600 focus:outline-none btn-press transition-all text-xl"
+										>
+											<MdClose />
+										</button>
+									</div>
+								) : (
+									<p
+										className={`${
+											task.status
+												? "line-through text-gray-400"
+												: "text-gray-700"
+										}`}
+									>
+										{task.description}
+									</p>
+								)}
 								{task.dueDate && (
 									<p
 										className={`text-xs mt-1 ${
@@ -492,12 +554,22 @@ const TodoList = () => {
 									</p>
 								)}
 							</div>
-							<button
-								onClick={() => deleteTask(task.id)}
-								className="text-gray-500 hover:text-red-500 focus:outline-none btn-press transition-all text-xl"
-							>
-								<MdDelete />
-							</button>
+							<div className="flex gap-2">
+								{!task.status && !editingTaskId && (
+									<button
+										onClick={() => startEditing(task)}
+										className="text-gray-500 hover:text-sky-500 focus:outline-none btn-press transition-all text-xl"
+									>
+										<MdEdit />
+									</button>
+								)}
+								<button
+									onClick={() => deleteTask(task.id)}
+									className="text-gray-500 hover:text-red-500 focus:outline-none btn-press transition-all text-xl"
+								>
+									<MdDelete />
+								</button>
+							</div>
 						</li>
 					))}
 			</ul>
