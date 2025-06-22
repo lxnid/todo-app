@@ -476,7 +476,7 @@ const TodoList = () => {
 						onChange={(e) =>
 							setSortOption(e.target.value as SortOption)
 						}
-						className="border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+						className="rounded px-2 py-1 text-sm opacity-45 bg-gray-200 focus:outline-none focus:ring-1 focus:ring-sky-500"
 					>
 						<option value="createdDesc">Newest first</option>
 						<option value="createdAsc">Oldest first</option>
@@ -486,13 +486,13 @@ const TodoList = () => {
 				</div>
 			</div>
 
-      <ul className={`space-y-2 ${showCompleted ? "max-h-[25vh] overflow-auto px-3" : "max-h-[60vh] overflow-auto px-3"}`}>
+      <ul className={`space-y-2 ${showCompleted && tasks.filter((task) => task.status).length > 0 ? "max-h-[25vh]" : "max-h-[60vh]"} overflow-auto px-3 py-1`}>
 				{sortTasks(tasks)
 					.filter((task) => !task.status)
 					.map((task) => (
 						<li
 							key={task.id}
-							className="p-5 border-b hover:border border-gray-300 cursor-pointer rounded-2xl bg-gray-100 hover:bg-sky-100 hover:scale-[102%] ease-in-out duration-400 shadow-sm flex justify-between items-center task-item transition-all"
+							className="p-5 border-b hover:border border-gray-300 cursor-pointer rounded-2xl bg-gray-100 hover:bg-[#d7ebf7] hover:scale-[102%] ease-in-out duration-400 shadow-sm flex justify-between items-center task-item transition-all"
 						>
 							<button
 								onClick={() =>
