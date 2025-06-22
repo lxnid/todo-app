@@ -148,7 +148,7 @@ const Auth = () => {
 				</div>
 			</div>
 			<div className="w-[50%] md:flex hidden justify-center items-center bg-sky-500 h-screen">
-				<div className="w-[100%] h-[100%] bg-[url('https://images.pexels.com/photos/32589785/pexels-photo-32589785.jpeg?_gl=1*1srf0bj*_ga*MjEwOTg5MzIwNC4xNzUwNTAzOTY4*_ga_8JE65Q40S6*czE3NTA1MDM5NjckbzEkZzEkdDE3NTA1MDQwMDkkajE4JGwwJGgw')] bg-cover"></div>
+				<div className="w-[100%] h-[100%] bg-[url('/login-bg.jpeg')] bg-cover"></div>
 			</div>
 		</div>
 	);
