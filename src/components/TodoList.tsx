@@ -30,6 +30,7 @@ type Task = {
 	status: boolean;
 	createdAt: Date | null;
 	dueDate: Date | null;
+	modifiedAt: Date | null;
 };
 
 type SortOption = "createdAsc" | "createdDesc" | "dueAsc" | "dueDesc";
@@ -100,6 +101,9 @@ const TodoList = () => {
 							: null,
 						dueDate: data.dueDate
 							? new Date(data.dueDate.toDate())
+							: null,
+						modifiedAt: data.modifiedAt
+							? new Date(data.modifiedAt.toDate())
 							: null,
 					};
 				});
@@ -188,6 +192,7 @@ const TodoList = () => {
 			// Update in Firestore
 			await updateDoc(taskRef, {
 				description: editingTaskDescription.trim(),
+				modifiedAt: new Date(),
 			});
 
 			// Clear editing state
@@ -481,7 +486,7 @@ const TodoList = () => {
 				</div>
 			</div>
 
-			<ul className="space-y-2 max-h-[45vh] overflow-auto px-2">
+      <ul className={`space-y-2 ${showCompleted ? "max-h-[25vh] overflow-auto px-3" : "max-h-[60vh] overflow-auto px-3"}`}>
 				{sortTasks(tasks)
 					.filter((task) => !task.status)
 					.map((task) => (
@@ -507,12 +512,25 @@ const TodoList = () => {
 										<input
 											type="text"
 											value={editingTaskDescription}
-											onChange={(e) => setEditingTaskDescription(e.target.value)}
+											onChange={(e) =>
+												setEditingTaskDescription(
+													e.target.value
+												)
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") {
+													updateTaskDescription(
+														task.id
+													);
+												}
+											}}
 											className="flex-grow px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
 											autoFocus
 										/>
 										<button
-											onClick={() => updateTaskDescription(task.id)}
+											onClick={() =>
+												updateTaskDescription(task.id)
+											}
 											className="text-sky-500 hover:text-sky-600 focus:outline-none btn-press transition-all text-xl"
 										>
 											<MdSave />
@@ -548,11 +566,20 @@ const TodoList = () => {
 										Due: {formatDate(task.dueDate, false)}
 									</p>
 								)}
-								{task.createdAt && (
-									<p className="text-xs text-gray-400 mt-1">
-										Created: {formatDate(task.createdAt)}
-									</p>
-								)}
+								<div className="flex gap-5">
+									{task.createdAt && (
+										<p className="text-xs text-gray-400 mt-1">
+											Created:{" "}
+											{formatDate(task.createdAt)}
+										</p>
+									)}
+									{task.modifiedAt && (
+										<p className="text-xs text-gray-400 mt-1">
+											Modified:{" "}
+											{formatDate(task.modifiedAt)}
+										</p>
+									)}
+								</div>
 							</div>
 							<div className="flex gap-2">
 								{!task.status && !editingTaskId && (
@@ -602,7 +629,7 @@ const TodoList = () => {
 						)}
 					</button>
 					{showCompleted && (
-						<ul className="space-y-2 my-1 max-h-[25vh] overflow-auto px-2 transition-all">
+						<ul className="space-y-2 my-1 max-h-[35vh] overflow-auto px-2 transition-all">
 							{sortTasks(tasks)
 								.filter((task) => task.status)
 								.map((task) => (
@@ -653,12 +680,24 @@ const TodoList = () => {
 													)}
 												</p>
 											)}
-											{task.createdAt && (
-												<p className="text-xs text-gray-400 mt-1">
-													Created:{" "}
-													{formatDate(task.createdAt)}
-												</p>
-											)}
+											<div className="flex gap-5">
+												{task.createdAt && (
+													<p className="text-xs text-gray-400 mt-1">
+														Created:{" "}
+														{formatDate(
+															task.createdAt
+														)}
+													</p>
+												)}
+												{task.modifiedAt && (
+													<p className="text-xs text-gray-400 mt-1">
+														Modified:{" "}
+														{formatDate(
+															task.modifiedAt
+														)}
+													</p>
+												)}
+											</div>
 										</div>
 										<button
 											onClick={() => deleteTask(task.id)}

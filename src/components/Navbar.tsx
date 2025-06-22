@@ -5,7 +5,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
 
   return (
-    <nav className="bg-sky-500 text-white p-4 shadow-md">
+    <nav className="bg-sky-500 text-white p-4 shadow-md top-0 sticky z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">TODO</div>
         
