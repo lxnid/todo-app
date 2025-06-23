@@ -49,8 +49,8 @@ const Auth = () => {
 
 	return (
 		<div className="flex justify-center items-center min-h-screen bg-gray-100">
-			<div className="w-[50%] flex justify-center items-center">
-				<div className="w-full max-w-xl bg-white overflow-hidden">
+			<div className="w-full md:w-[50%] flex justify-center items-center">
+				<div className="w-full max-w-xl md:bg-white overflow-hidden">
 					<div className="p-4 text-sky-500 absolute top-10 left-10">
 						<h1 className="text-2xl font-bold">TODO</h1>
 					</div>
